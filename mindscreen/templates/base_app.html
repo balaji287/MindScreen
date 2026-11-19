@@ -1,0 +1,30 @@
+{% from "_macros.html" import flashes %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}MindScreen{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><div class="app">
+<aside class="sidebar"><a class="logo" href="{{ url_for('main.landing') }}"><i></i>MindScreen</a>
+{% set ep = request.endpoint or '' %}
+{% if user.role == 'researcher' %}
+ <a class="{{ 'active' if ep == 'admin.index' }}" href="{{ url_for('admin.index') }}">📊 Overview</a>
+ <a class="{{ 'active' if ep == 'admin.models' }}" href="{{ url_for('admin.models') }}">🧪 Model evaluation</a>
+ <a class="{{ 'active' if ep == 'admin.batch' }}" href="{{ url_for('admin.batch') }}">🗂️ Cohort batch</a>
+ <a class="{{ 'active' if ep == 'admin.audit_log' }}" href="{{ url_for('admin.audit_log') }}">📜 Audit log</a>
+{% else %}
+ <a class="{{ 'active' if ep == 'main.home' }}" href="{{ url_for('main.home') }}">🏠 Overview</a>
+ <a class="{{ 'active' if ep.startswith('data.') }}" href="{{ url_for('data.hub') }}">📥 Data Collection</a>
+ <a class="{{ 'active' if ep == 'analysis.predict_page' }}" href="{{ url_for('analysis.predict_page') }}">🧠 ML Prediction</a>
+ <a class="{{ 'active' if ep == 'analysis.trends_page' }}" href="{{ url_for('analysis.trends_page') }}">📈 Behavioural Trends</a>
+ <a class="{{ 'active' if ep == 'analysis.explain_page' }}" href="{{ url_for('analysis.explain_page') }}">🔍 Explainable AI</a>
+ <a class="{{ 'active' if ep.startswith('analysis.report') }}" href="{{ url_for('analysis.reports_page') }}">📄 Reports</a>
+{% endif %}
+<div class="sep"></div>
+<a class="{{ 'active' if ep == 'analysis.privacy_page' }}" href="{{ url_for('analysis.privacy_page') }}">🔒 Privacy &amp; Consent</a>
+<a class="{{ 'active' if ep == 'main.settings' }}" href="{{ url_for('main.settings') }}">⚙️ Settings</a>
+<a href="{{ url_for('quick.index') }}">⚡ Quick analyser</a></aside>
+<div class="main">
+ <div class="topbar"><button class="btn plain sm menu-btn" type="button">☰ Menu</button><b>{% block heading %}{% endblock %}</b>
+  <span class="sp mute small">{{ user.pseudo_id }} · <span class="chip">{{ user.role }}</span></span>
+  <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="btn ghost sm">Log out</button></form></div>
+ {% if user.is_demo %}<div class="demo-banner">🧪 <b>DEMO DATA.</b> This account contains fictional records created for demonstration. It is kept separate from real student data.</div>{% endif %}
+ <div class="content">{{ flashes() }}{% block body %}{% endblock %}</div></div></div>
+<script src="{{ url_for('static', filename='vendor/chart.umd.js') }}"></script><script src="{{ url_for('static', filename='app.js') }}"></script></body></html>

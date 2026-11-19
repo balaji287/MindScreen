@@ -1,0 +1,15 @@
+{% extends "base_public.html" %}{% block title %}Quick analysis · MindScreen{% endblock %}{% block body %}{% set h = a.headline %}
+<div class="container" style="padding-top:1.4rem">
+<div class="card"><div class="mute small">{{ a.source }} · {{ a.summary.days }} days ({{ a.summary.start }} – {{ a.summary.end }}) · usage taken from {{ a.summary.usage_source }}</div>
+<div class="grid g3" style="align-items:center;margin-top:.6rem"><div><div class="mute small">{{ 'Risk now (last 7 days)' if a.recent else 'Estimated risk' }}</div><div class="big">{{ h.risk_pct }}%</div><div class="bar thick" style="margin:.5rem 0"><i style="width:{{ h.risk_pct }}%"></i></div></div>
+<div><div class="mute small">Screening category</div><span class="badge {{ h.colour }}" style="font-size:1.2rem">{{ h.tier }}</span>{% if a.recent %}<div class="small mute" style="margin-top:.5rem">Whole period: <b>{{ a.overall.risk_pct }}%</b> ({{ a.overall.tier }})</div>{% endif %}</div>
+<div><div class="mute small">Model agreement</div><b style="font-size:1.4rem">{{ h.agreement }}</b> models<br><span class="mute small">Consensus: {{ h.consensus }}</span></div></div>
+{% if a.recent and a.recent.tier != a.overall.tier %}<p class="note" style="margin-top:1rem">📈 The recent week differs from the overall average. A single average would have hidden this.</p>{% endif %}
+<p class="note small" style="margin-top:1rem">Screening indicator, not a diagnosis. Consider a counsellor or doctor if you are concerned.</p></div>
+<div class="card"><h2>Your trends</h2><img class="fig" alt="Trend charts" src="data:image/png;base64,{{ a.chart }}"></div>
+<div class="card"><h2>Behaviour-change monitor {% if a.drift %}<span class="badge {{ a.drift.colour }}">{{ a.drift.level }}</span>{% endif %}</h2>
+{% if a.drift %}<p class="mute small">Last {{ a.drift.recent_days }} days vs your own earlier baseline; flagged when ≥ 2.5 standard errors and ≥ 10% worse. A monitoring heuristic, not a clinical test.</p>
+<div class="scroll"><table><tr><th>Signal</th><th>Baseline</th><th>Last 7 days</th><th>Change</th><th></th></tr>{% for r in a.drift.rows %}<tr><td>{{ r.label }}</td><td>{{ r.baseline }}</td><td>{{ r.recent }}</td><td class="{{ 'bad' if r.flag }}">{{ '%+d'|format(r.pct|int) }}%</td><td>{{ '⚠ flagged' if r.flag }}</td></tr>{% endfor %}</table></div>
+{% else %}<p class="mute">Upload at least 14 days to enable change detection.</p>{% endif %}</div>
+<div class="card"><h2>Four models, one opinion</h2><div class="scroll"><table><tr><th>Model</th><th>Estimate</th><th>Verdict</th><th>Held-out accuracy</th></tr>{% for n,v in h.votes.items() %}<tr><td>{{ n }}{% if n == h.model_used %} <span class="chip on">primary</span>{% endif %}</td><td>{{ v.risk }}%</td><td>{{ 'At risk' if v.at_risk else 'Healthy' }}</td><td>{{ (m[n].test_accuracy*100)|round(1) }}%</td></tr>{% endfor %}</table></div></div>
+<p class="row"><a class="btn ghost" href="{{ url_for('quick.index') }}">← New upload</a><a class="btn" target="_blank" href="{{ url_for('quick.report', rid=a.id) }}">📄 Printable summary</a></p></div>{% endblock %}

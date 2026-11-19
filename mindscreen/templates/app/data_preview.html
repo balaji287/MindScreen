@@ -1,0 +1,14 @@
+{% extends "base_app.html" %}{% from "_macros.html" import csrf, chip %}{% block title %}Preview · MindScreen{% endblock %}{% block heading %}{{ spec.icon }} {{ spec.label }}: preview{% endblock %}{% block body %}
+<div class="card"><div class="row"><h2 style="margin:0">Validation result</h2>{{ chip(status) }}</div>
+<p>{{ rep.rows_total }} row(s) read · <b>{{ rep.rows_valid }}</b> valid · <b>{{ rep.errors|length }}</b> problem(s).</p>
+{% for w in rep.warnings %}<div class="flash info">{{ w }}</div>{% endfor %}
+{% if rep.errors %}<div class="err"><b>This file needs correction before it can be submitted.</b><ul class="small" style="margin:.4rem 0 0">{% for e in rep.errors[:30] %}<li>{% if e.row %}Row {{ e.row }}{% if e.col %} · <code>{{ e.col }}</code>{% endif %}: {% endif %}{{ e.msg }}</li>{% endfor %}</ul>{% if rep.errors|length > 30 %}<p class="small">…and {{ rep.errors|length - 30 }} more.</p>{% endif %}</div>
+<p><a class="btn" href="{{ url_for('data.category', key=key) }}">← Fix the file and upload again</a></p>
+{% else %}
+<h3>Preview (first 10 rows)</h3><div class="scroll"><table><tr>{% for c in cols %}<th>{{ c.name }}</th>{% endfor %}</tr>
+{% for r in rows %}<tr>{% for c in cols %}<td>{{ '' if r[c.name] is none or r[c.name] != r[c.name] else r[c.name] }}</td>{% endfor %}</tr>{% endfor %}</table></div>
+<form method="post" action="{{ url_for('data.confirm', upload_id=upload_id) }}">{{ csrf() }}
+{% if existing %}<label style="font-weight:400;display:flex;gap:.5rem"><input type="checkbox" name="replace" value="1"> Replace my existing uploaded {{ spec.label|lower }} data (otherwise records are added; matching dates are updated)</label>{% endif %}
+<p class="row"><button class="btn">Confirm &amp; submit {{ rep.rows_valid }} records</button></p></form>
+<form method="post" action="{{ url_for('data.cancel', upload_id=upload_id) }}">{{ csrf() }}<button class="btn plain sm">Cancel</button></form>{% endif %}</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base_public.html" %}{% from "_macros.html" import csrf %}{% block title %}Create account · MindScreen{% endblock %}{% block body %}
+<div class="container"><div class="card auth" style="max-width:520px"><h1>Create your account</h1>{% if error %}<div class="err">{{ error }}</div>{% endif %}
+<form method="post">{{ csrf() }}
+<label for="email">Email</label><input id="email" type="email" name="email" required value="{{ form.get('email','') }}" autocomplete="username">
+<div class="grid g2"><div><label for="pw">Password</label><input id="pw" type="password" name="password" required minlength="10" autocomplete="new-password"></div>
+<div><label for="cf">Confirm password</label><input id="cf" type="password" name="confirm" required minlength="10" autocomplete="new-password"></div></div>
+<p class="small mute">At least 10 characters, with letters and a digit.</p>
+<h3 style="margin-top:1rem">Optional profile</h3><p class="small mute">Used only to match your data to the model's training data. Leave blank if you prefer; typical values are then used and the result says so.</p>
+<div class="grid g3"><div><label>Age</label><input type="number" name="age" min="16" max="40" value="{{ form.get('age','') }}"></div>
+<div><label>Gender</label><select name="gender"><option value="">Prefer not to say</option>{% for g in genders %}<option>{{ g }}</option>{% endfor %}</select></div>
+<div><label>Academic level</label><select name="academic_level"><option value="">Prefer not to say</option>{% for l in levels %}<option>{{ l }}</option>{% endfor %}</select></div></div>
+<label for="inv">Researcher invite code (only if you were given one)</label><input id="inv" type="text" name="invite" autocomplete="off">
+<label style="font-weight:400;display:flex;gap:.5rem;margin-top:1rem"><input type="checkbox" name="consent_core" value="1" required> I consent to MindScreen collecting and processing the data I choose to submit, for well-being screening and research, as described on the Privacy page. I understand this is not a diagnosis and I can delete my data at any time.</label>
+<p><button class="btn">Create account</button></p></form><p class="small mute">Already registered? <a href="{{ url_for('auth.login') }}">Log in</a>.</p></div></div>{% endblock %}

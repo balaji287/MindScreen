@@ -1,0 +1,8 @@
+{% extends "base_app.html" %}{% from "_macros.html" import csrf %}{% block title %}Cohort batch · MindScreen{% endblock %}{% block heading %}Cohort batch analysis{% endblock %}{% block body %}
+<div class="card"><h2>Upload per-student averages</h2><p class="mute small">For a counselling cell or partner clinic: a CSV of per-student average habits. Processed in memory; cohorts smaller than {{ K }} are refused; identifiers are dropped from the output.</p>
+<form method="post" enctype="multipart/form-data">{{ csrf() }}<div class="drop"><b>Drag &amp; drop a CSV</b><br><input type="file" name="file" accept=".csv" required><div class="filename"></div></div>
+<p class="row"><button class="btn">Analyse cohort</button><a class="btn ghost" href="{{ url_for('static', filename='sample_campus_upload.csv') }}" download>Download sample CSV</a></p></form>
+<p class="small mute">Required columns: {{ cols|join(', ') }}</p>{% if error %}<div class="err">⚠️ {{ error }}</div>{% endif %}</div>
+{% if summary %}<div class="card"><h2>Cohort overview</h2><div class="grid g4"><div class="stat"><b>{{ summary.n }}</b>students</div><div class="stat"><b style="color:var(--red)">{{ summary.counts.High }} ({{ summary.high_pct }}%)</b>High indicator</div><div class="stat"><b style="color:var(--amber)">{{ summary.counts.Moderate }}</b>Moderate</div><div class="stat"><b style="color:var(--green)">{{ summary.counts.Low }}</b>Low</div>
+<div class="stat"><b>{{ summary.avg_usage }} h</b>avg social-media time</div><div class="stat"><b>{{ summary.avg_sleep }} h</b>avg sleep</div></div><p><a class="btn" href="{{ url_for('admin.batch_download') }}">⬇ Download results CSV</a></p></div>{% endif %}
+{% endblock %}

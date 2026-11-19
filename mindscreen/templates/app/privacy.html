@@ -1,0 +1,20 @@
+{% extends "base_app.html" %}{% from "_macros.html" import csrf, disclaimer %}{% block title %}Privacy &amp; Consent · MindScreen{% endblock %}{% block heading %}Privacy &amp; Consent{% endblock %}{% block body %}
+{{ disclaimer() }}
+<div class="grid g2"><div class="card"><h2>What we collect, and why</h2><ul class="small" style="padding-left:1.1rem">
+{% for k,c in CATEGORIES.items() %}<li><b>{{ c.label }}:</b> {{ c.desc }}</li>{% endfor %}</ul>
+<p class="small"><b>We never collect:</b> private messages, contact lists, passwords, browsing content or precise location.</p></div>
+<div class="card"><h2>How your data is protected</h2><ul class="small" style="padding-left:1.1rem"><li>Analysis uses a <b>pseudonymous ID</b>; your email is not stored with your records.</li>
+<li><b>Role-based access:</b> students see only their own data. Researchers see aggregates only, and groups smaller than 5 are hidden.</li><li>Uploads are limited to 2 MB CSV files, validated on the server, and the original is stored separately from cleaned records.</li>
+<li>Upload, validation, deletion and report events are logged (pseudonymous, no content).</li><li>You can use MindScreen without being labelled or penalised. Results are not shared with anyone unless you choose to share a report.</li></ul></div></div>
+{% if user.role == 'student' %}<div class="card"><h2>Your consents</h2>
+<div class="row"><b>Core consent</b><span class="chip on">{{ 'granted' if 'core' in consents else 'not recorded' }}</span><span class="small mute">Given at registration. To withdraw it, delete your data or account below.</span></div><hr style="border:0;border-top:1px solid var(--line)">
+{% for kind,label,desc in [('wearable','Wearable / device-derived data','Resting heart rate and heart-rate variability. Optional. Withdrawing removes the stored values.'),('grades','Grade / performance data','Optional grades in the Academic category. Withdrawing removes stored grades.')] %}
+<form method="post" action="{{ url_for('analysis.privacy_consent') }}" class="row" style="margin:.5rem 0">{{ csrf() }}<input type="hidden" name="kind" value="{{ kind }}"><div style="flex:1;min-width:220px"><b>{{ label }}</b><div class="small mute">{{ desc }}</div></div>
+<span class="chip {{ 'on' if kind in consents }}">{{ 'granted' if kind in consents else 'not granted' }}</span>
+{% if kind in consents %}<input type="hidden" name="grant" value="0"><button class="btn plain sm">Withdraw</button>{% else %}<input type="hidden" name="grant" value="1"><button class="btn sm">Grant consent</button>{% endif %}</form>{% endfor %}</div>
+<div class="grid g2"><div class="card"><h2>Delete my data</h2><p class="small mute">Removes all your records, uploaded files and predictions. Your account stays.</p>
+<form method="post" action="{{ url_for('analysis.delete_data') }}" data-confirm="Delete ALL your data? This cannot be undone.">{{ csrf() }}<label>Confirm with your password</label><input type="password" name="password" required autocomplete="current-password"><p><button class="btn danger">Delete my data</button></p></form></div>
+<div class="card"><h2>Delete my account</h2><p class="small mute">Removes your account and all associated data. Audit entries keep only the pseudonymous ID and the action.</p>
+<form method="post" action="{{ url_for('analysis.delete_account') }}" data-confirm="Permanently delete your account and data?">{{ csrf() }}<label>Confirm with your password</label><input type="password" name="password" required autocomplete="current-password"><p><button class="btn danger">Delete my account</button></p></form></div></div>
+{% else %}<div class="card"><h2>Researcher access</h2><p class="small">Your role sees aggregated, privacy-protected statistics only (cohorts below 5 are suppressed). Every view is written to the audit log.</p></div>{% endif %}
+{% endblock %}

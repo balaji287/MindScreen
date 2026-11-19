@@ -1,0 +1,11 @@
+{
+  "screen_share_of_waking": 0.2279,
+  "Avg_Daily_Usage_Hours": 0.2267,
+  "usage_sleep_ratio": 0.0768,
+  "Sleep_Hours_Per_Night": 0.0324,
+  "Academic_Level": 0.0305,
+  "sleep_deficit": 0.0258,
+  "Most_Used_Platform": 0.0218,
+  "Gender": 0.0198,
+  "Age": 0.0132
+}

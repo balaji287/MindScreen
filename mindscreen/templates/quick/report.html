@@ -1,0 +1,9 @@
+{% extends "base_public.html" %}{% block title %}Summary · MindScreen{% endblock %}{% block body %}{% set h = a.headline %}
+<div class="container" style="padding-top:1.4rem"><div class="card"><h1>Screening summary</h1><p class="mute">Report ID <b>{{ a.id }}</b> · {{ a.when }} · {{ a.source }} · {{ a.summary.days }} days</p>
+<div class="grid g3"><div class="stat"><b>{{ h.risk_pct }}%</b>{{ 'risk, last 7 days' if a.recent else 'estimated risk' }}</div><div class="stat"><b><span class="badge {{ h.colour }}">{{ h.tier }}</span></b>category</div><div class="stat"><b>{{ h.agreement }}</b>models agree</div></div>
+{% if a.recent %}<p class="small mute">Whole-period average: {{ a.overall.risk_pct }}% ({{ a.overall.tier }}).</p>{% endif %}</div>
+<div class="card"><h2>Trends</h2><img class="fig" alt="Trend charts" src="data:image/png;base64,{{ a.chart }}"></div>
+<div class="card"><h2>Behaviour change vs personal baseline</h2>{% if a.drift %}<p><span class="badge {{ a.drift.colour }}">{{ a.drift.level }}</span> · {{ a.drift.n_flag }} signal(s) flagged</p>
+<table><tr><th>Signal</th><th>Baseline</th><th>Last {{ a.drift.recent_days }} days</th><th>Change</th></tr>{% for r in a.drift.rows if r.flag %}<tr><td>{{ r.label }}</td><td>{{ r.baseline }}</td><td>{{ r.recent }}</td><td>{{ '%+d'|format(r.pct|int) }}%</td></tr>{% else %}<tr><td colspan="4">No signal flagged.</td></tr>{% endfor %}</table>{% else %}<p>Fewer than 14 days: change detection not available.</p>{% endif %}</div>
+<div class="card"><p class="small">Model: {{ h.model_used }}, trained on {{ s.n_rows }} records of a public survey dataset ("at risk" = self-reported wellbeing score ≤ {{ s.threshold }}/10).</p><p class="note"><b>Disclaimer:</b> automated screening from behavioural data only. It is NOT a diagnosis; clinical assessment is required for any decision.</p></div>
+<p class="noprint"><button class="btn" type="button" data-print>🖨️ Print / Save as PDF</button></p></div>{% endblock %}

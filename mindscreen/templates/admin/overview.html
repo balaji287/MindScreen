@@ -1,0 +1,13 @@
+{% extends "base_app.html" %}{% block title %}Researcher overview · MindScreen{% endblock %}{% block heading %}Researcher overview{% endblock %}{% block body %}
+<div class="card"><div class="row"><b>Data scope:</b><a class="btn {{ 'sm' if sc == 0 else 'sm ghost' }}" href="{{ url_for('admin.index') }}">Real users</a><a class="btn {{ 'sm' if sc == 1 else 'sm ghost' }}" href="{{ url_for('admin.index', scope='demo') }}">Demo (fictional) users</a>
+<span class="sp small mute" style="margin-left:auto">Demo and real data are never mixed. Groups smaller than {{ K }} are suppressed.</span></div>
+{% if sc %}<p class="note small" style="margin-top:.7rem">🧪 You are viewing <b>fictional demo data</b>.</p>{% endif %}</div>
+<div class="grid g3"><div class="card stat"><b>{{ st.n_students }}</b>registered students</div><div class="card stat"><b>{{ st.n_uploads }}</b>active uploads</div><div class="card stat"><b>{{ st.records }}</b>stored daily records</div></div>
+<div class="card"><h2>Completeness and missing data by category</h2><div class="scroll"><table><tr><th>Category</th><th>Students with data</th><th>Records</th><th>Avg. completeness</th><th>Most-missing fields</th></tr>
+{% for c in st.cats %}<tr><td>{{ CATEGORIES[c.key].icon }} {{ c.label }}</td>{% if c.suppressed %}<td colspan="4" class="mute small">Fewer than {{ K }} students: not shown (privacy safeguard)</td>{% else %}<td>{{ c.students_with_data }}</td><td>{{ c.records }}</td>
+<td><div class="bar" style="width:120px"><i style="width:{{ c.completeness }}%"></i></div>{{ c.completeness }}%</td><td class="small">{% for m in (c.missing|sort(attribute='pct', reverse=True))[:3] %}{{ m.col }} {{ m.pct }}%{{ ', ' if not loop.last }}{% endfor %}</td>{% endif %}</tr>{% endfor %}</table></div></div>
+<div class="card"><h2>Aggregate trends</h2><div class="chartbox" data-aggregate-src="{{ url_for('admin.aggregate_trends', scope='demo' if sc else 'real') }}"></div></div>
+<div class="grid g2"><div class="card"><h2>Screening categories (latest per student)</h2>{% if st.pred.suppressed %}<p class="mute">Fewer than {{ K }} students have a prediction: not shown.</p>{% else %}<table>{% for t,c in st.pred.tiers.items() %}<tr><td>{{ t }}</td><td>{{ c }}</td></tr>{% endfor %}</table>{% endif %}
+<p class="small mute">Counts of 1–{{ K - 1 }} are shown as “&lt;{{ K }}”.</p></div>
+<div class="card"><h2>Reports</h2><a class="btn ghost" href="{{ url_for('admin.aggregate_report', scope='demo' if sc else 'real') }}">⬇ Aggregate CSV report</a><p class="small mute">Aggregated, privacy-protected statistics only. Individual records are never shown to researchers.</p></div></div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base_app.html" %}{% from "_macros.html" import csrf, chip, disclaimer %}{% block title %}ML Prediction · MindScreen{% endblock %}{% block heading %}ML Prediction{% endblock %}{% block body %}
+{{ disclaimer() }}
+<div class="card"><h2>One unified pipeline</h2><p class="small mute">All your validated categories are cleaned and combined into a single feature set. The current validated model (trained on a public survey dataset) can use <b>Screen time</b> and <b>Physical wellness</b> (sleep) plus your optional profile. Behavioural, Social and Academic data are collected and shown in Trends, but are <b>not</b> fed to the model, because it was never trained on them.</p>
+<div class="grid g5">{% for k,s in status.items() %}<div class="tile"><b>{{ CATEGORIES[k].icon }} {{ CATEGORIES[k].label }}</b><div>{{ chip(s.status) }}</div><div class="small mute">{{ 'used by the model' if k in ('screen','physical') else 'context only' }}</div></div>{% endfor %}</div></div>
+
+<div class="card"><h2>Run a screening</h2>
+{% if prep.available %}<p>Ready: <b>{{ prep.n_days }}</b> days with both screen-time and sleep data
+{% if prep.window[0] %}({{ prep.window[0] }} to {{ prep.window[1] }}){% endif %}.</p>
+{% if prep.notes %}<ul class="small">{% for n in prep.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+<form method="post" action="{{ url_for('analysis.predict_run') }}" data-busy="1">{{ csrf() }}<div class="row"><label style="margin:0">Window</label>
+<select name="window" style="width:auto"><option value="30">last 30 days</option><option value="60">last 60 days</option><option value="90">last 90 days</option></select><button class="btn">Run screening</button></div></form>
+{% else %}<div class="note"><b>A prediction is not available yet.</b><ul style="margin:.3rem 0 0">{% for r in prep.reasons %}<li>{{ r }}</li>{% endfor %}</ul></div>
+<p class="small mute">Real predictions need validated data and a trained model. Nothing is estimated from missing data, and no placeholder score is shown.</p>
+<p class="row"><a class="btn" href="{{ url_for('data.category', key='screen') }}">Add screen-time data</a><a class="btn ghost" href="{{ url_for('data.category', key='physical') }}">Add physical-wellness data</a></p>{% endif %}</div>
+
+{% if pred %}<div class="card"><h2>Latest screening result</h2>
+<div class="grid g3" style="align-items:center"><div><div class="mute small">Screening category</div><span class="badge {{ pred.colour }}" style="font-size:1.2rem">{{ pred.tier }} indicator</span>
+ <div class="small mute" style="margin-top:.4rem">Not a diagnosis.</div></div>
+<div><div class="mute small">Estimated likelihood of low self-reported wellbeing</div><div class="big">{{ pred.probability }}%</div><div class="small mute">calibrated model estimate, based on a survey dataset</div></div>
+<div><div class="mute small">Data sufficiency</div><b style="font-size:1.3rem">{{ pred.sufficiency }}</b><div class="small mute">{{ pred.n_days }} days · {{ pred.completeness|round|int }}% overall completeness</div></div></div>
+{% if pred.sufficiency != 'Good' or pred.categories_missing %}<p class="note" style="margin-top:1rem">Confidence is limited: {% if pred.n_days < 28 %}fewer than 28 days of data are in the window{% endif %}{% if pred.categories_missing %}{{ '; ' if pred.n_days < 28 }}these categories have no data: {% for k in pred.categories_missing %}{{ CATEGORIES[k].label }}{{ ', ' if not loop.last }}{% endfor %}{% endif %}. Adding more days or categories improves what can be said.</p>{% endif %}
+{% if pred.notes %}<ul class="small">{% for n in pred.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+<h3 style="margin-top:1rem">Four models, one opinion</h3><div class="scroll"><table><tr><th>Model</th><th>Estimate</th><th>Verdict</th></tr>
+{% for n,v in pred.votes.items() %}<tr><td>{{ n }}{% if n == pred.model_name %} <span class="chip on">primary</span>{% endif %}</td><td>{{ v.risk }}%</td><td>{{ 'leans at-risk' if v.at_risk else 'leans healthy' }}</td></tr>{% endfor %}</table></div>
+<p class="small mute">Agreement: {{ pred.agreement }} models · Model version <code>{{ pred.model_version }}</code> · predicted {{ pred.ts.replace('T',' ') }} UTC · mode: {{ pred.mode }}</p>
+<p class="row"><a class="btn ghost" href="{{ url_for('analysis.explain_page') }}">See the explanation →</a><a class="btn ghost" href="{{ url_for('analysis.reports_page') }}">Create a report</a></p></div>
+{% if history|length > 1 %}<div class="card"><h2>Prediction history</h2><div class="scroll"><table><tr><th>When (UTC)</th><th>Category</th><th>Estimate</th><th>Sufficiency</th><th>Model version</th></tr>
+{% for h in history %}<tr><td>{{ h.ts.replace('T',' ') }}</td><td>{{ h.tier }}</td><td>{{ h.probability }}%</td><td>{{ h.sufficiency }} ({{ h.n_days }} d)</td><td class="small">{{ h.model_version }}</td></tr>{% endfor %}</table></div></div>{% endif %}{% endif %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base_app.html" %}{% from "_macros.html" import disclaimer, chip %}{% block title %}Explainable AI · MindScreen{% endblock %}{% block heading %}Explainable AI{% endblock %}{% block body %}
+{{ disclaimer() }}
+{% if not pred %}<div class="card"><h2>No result to explain yet</h2><p class="mute">Explanations describe a specific prediction. Run a screening first (it needs validated screen-time and physical-wellness data).</p><a class="btn" href="{{ url_for('analysis.predict_page') }}">Go to ML Prediction</a></div>
+{% else %}{% set e = pred.explanation %}
+<div class="card"><h2>What contributed to this result</h2><p>{{ e.text }}</p>
+<div class="chartbox" style="height:{{ 60 + e["items"]|length * 38 }}px"><canvas id="shapchart" data-bars="{{ shap_json }}" data-signed="1" data-xlabel="Effect on the model's estimate (percentage points)"></canvas></div>
+<p class="small mute">Red bars push the estimate up, teal bars pull it down. Method: {{ e.method }}. Values are model explanations and <b>not proof of cause</b>.</p>
+<div class="scroll"><table><tr><th>Feature</th><th>Value in your data</th><th>Direction</th><th>Effect</th></tr>
+{% for i in e['items'] %}<tr><td>{{ i.label }}</td><td>{{ i.value }}</td><td>{{ i.direction }} the estimate</td><td class="{{ 'bad' if i.effect_pp > 0 else 'good' }}">{{ '%+.1f'|format(i.effect_pp) }} pts</td></tr>{% endfor %}</table></div>
+<p class="small mute">Starting point (typical student in the training survey): {{ e.base_pct }}% → this record: {{ e.output_pct }}%.</p></div>
+<div class="grid g2"><div class="card"><h2>Data used and limitations</h2>
+<dl class="kv"><dt>Categories used</dt><dd>{% for k in pred.categories_used %}{{ CATEGORIES[k].label }}{{ ', ' if not loop.last }}{% endfor %}</dd>
+<dt>Collected, not used</dt><dd>{% for k in pred.categories_collected_not_used %}{{ CATEGORIES[k].label }}{{ ', ' if not loop.last }}{% else %}none{% endfor %}</dd>
+<dt>No data</dt><dd>{% for k in pred.categories_missing %}{{ CATEGORIES[k].label }}{{ ', ' if not loop.last }}{% else %}none{% endfor %}</dd>
+<dt>Window</dt><dd>{{ pred.window[0] }} to {{ pred.window[1] }} ({{ pred.n_days }} days with data)</dd>
+<dt>Data sufficiency</dt><dd>{{ pred.sufficiency }}</dd><dt>Model version</dt><dd><code>{{ pred.model_version }}</code></dd><dt>Predicted at</dt><dd>{{ pred.ts.replace('T',' ') }} UTC</dd></dl>
+<ul class="small"><li>The model was trained on a public survey dataset with a self-reported wellbeing label, not on clinical outcomes.</li><li>Missing categories and short windows reduce how much can be said.</li><li>Age, gender and academic level come from your optional profile; typical values are used when absent.</li></ul></div>
+<div class="card"><h2>What matters across all students</h2><p class="small mute">Global importance (permutation importance on the held-out training data): how much accuracy drops when a feature is shuffled.</p>
+<div class="chartbox" style="height:300px"><canvas data-bars="{{ global_json }}" data-xlabel="Drop in F1 when shuffled"></canvas></div></div></div>
+{% endif %}{% endblock %}

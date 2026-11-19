@@ -1,0 +1,8 @@
+{% extends "base_app.html" %}{% block title %}Reports · MindScreen{% endblock %}{% block heading %}Reports{% endblock %}{% block body %}
+<div class="card"><h2>Your report</h2><p class="mute">A summary you can download or print: data completeness, selected trends, the latest model output, limitations and the explanation. Share it only if you choose to.</p>
+<p class="row"><a class="btn" href="{{ url_for('analysis.report_download', fmt='pdf') }}">⬇ Download PDF</a><a class="btn ghost" href="{{ url_for('analysis.report_download', fmt='csv') }}">⬇ Download CSV</a></p><p class="note small">{{ disclaimer }}</p></div>
+<div class="grid g2"><div class="card"><h2>Included: data completeness</h2><p><b>{{ ctx.completeness }}%</b> overall</p><div class="scroll"><table><tr><th>Category</th><th>Status</th><th>Days</th></tr>
+{% for k,s in ctx.status.items() %}<tr><td>{{ CATEGORIES[k].label }}</td><td>{{ s.status }}</td><td>{{ s.days }}</td></tr>{% endfor %}</table></div></div>
+<div class="card"><h2>Included: trend summary (30 days)</h2>{% if rows %}<table>{% for a,b in rows %}<tr><td>{{ a }}</td><td>{{ b }}</td></tr>{% endfor %}</table>{% else %}<p class="mute">No data yet.</p>{% endif %}</div></div>
+<div class="card"><h2>Included: model output</h2>{% if ctx.prediction %}<p>{{ ctx.prediction.tier }} indicator · {{ ctx.prediction.probability }}% estimate · {{ ctx.prediction.sufficiency }} sufficiency · <code>{{ ctx.prediction.model_version }}</code></p>{% else %}<p class="mute">No prediction has been run. The report will say so.</p>{% endif %}</div>
+{% endblock %}

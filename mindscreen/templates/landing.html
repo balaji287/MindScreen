@@ -1,0 +1,18 @@
+{% extends "base_public.html" %}{% block body %}
+<section class="hero"><div class="container"><span class="kicker">Multimodal student well-being screening</span>
+<h1>Understand Student Well-being Through Data.</h1>
+<p class="lead">MindScreen looks at five kinds of everyday data (screen time, behaviour, physical wellness, social interaction and academic life) instead of relying on a single questionnaire, and shows patterns that may deserve attention. It is a screening and decision-support aid, never a diagnosis.</p>
+<p class="row" style="margin-top:1.4rem"><a class="btn" href="{{ url_for('main.home') }}">Open Dashboard</a><a class="btn ghost" href="#how">Explore How It Works</a></p></div></section>
+
+<section class="section"><div class="container"><h2>Five data categories, uploaded separately</h2><p class="mute">Provide as many or as few as you like. Missing categories lower what the system can say; they never block you.</p>
+<div class="grid g5">{% for k,c in CATEGORIES.items() %}<div class="tile"><div class="ic">{{ c.icon }}</div><h3>{{ c.short }}. {{ c.label }}</h3><p class="small mute">{{ c.desc.split('. ')[0] }}.</p></div>{% endfor %}</div></div></section>
+
+<section class="section alt" id="how"><div class="container"><h2>How it works</h2><div class="steps">
+<div class="card step"><div class="n">1</div><h3>Collect Data</h3><p class="small mute">Upload a CSV per category (templates provided) or add a day manually. Every file is validated and previewed before it is saved.</p></div>
+<div class="card step"><div class="n">2</div><h3>Analyse Patterns</h3><p class="small mute">One unified pipeline cleans and combines the available data, tracks trends against your own baseline and, when enough validated data exists, runs the prediction model.</p></div>
+<div class="card step"><div class="n">3</div><h3>Review Insights</h3><p class="small mute">See trends with honest gaps, a screening category with plain-language explanation, and a report you can share if you choose.</p></div></div></div></section>
+
+<section class="section"><div class="container"><div class="notice"><h2>Privacy and responsible use</h2>
+<p style="margin:.2rem 0">Consent comes first and is separate for optional wearable and grade data. MindScreen only uses aggregate numbers: never private messages, contact lists, passwords, browsing content or precise location. Students see only their own data; researchers see only aggregates, and small groups are hidden. You can delete your data or account at any time, and you can use the platform without being labelled or penalised.</p>
+<p class="small mute" style="margin:.4rem 0 0">MindScreen is a research prototype. Its model is trained on a public survey dataset and is not clinically validated. If you are struggling, please talk to a counsellor or doctor.</p></div></div></section>
+{% endblock %}

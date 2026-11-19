@@ -1,0 +1,8 @@
+{% extends "base_app.html" %}{% from "_macros.html" import chip %}{% block title %}Data Collection · MindScreen{% endblock %}{% block heading %}Data Collection{% endblock %}{% block body %}
+<div class="card"><h2>Your five data categories</h2><p class="mute">Each category has its own page: upload a CSV (templates provided) or add a day manually. You do not need to submit all five; the more you add, the more the trends and checks can show.</p>
+<div class="row"><b>Overall completeness {{ completeness }}%</b><div class="bar" style="flex:1;min-width:160px"><i style="width:{{ completeness }}%"></i></div></div></div>
+<div class="grid g3">{% for k,s in status.items() %}<a class="tile" href="{{ url_for('data.category', key=k) }}"><div class="ic">{{ CATEGORIES[k].icon }}</div><h3>{{ CATEGORIES[k].short }}. {{ CATEGORIES[k].label }}</h3>
+<p class="small mute">{{ CATEGORIES[k].desc.split('. ')[0] }}.</p><p>{{ chip(s.status) }} <span class="small mute">{{ s.days }} day(s){% if s.last %} · last {{ s.last }}{% endif %}</span></p>
+<div class="bar"><i style="width:{{ s.completeness }}%"></i></div></a>{% endfor %}</div>
+<p class="small mute">Not collected, ever: private messages, contact lists, passwords, browsing content, precise location.</p>
+{% endblock %}

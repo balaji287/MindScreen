@@ -1,0 +1,12 @@
+{% extends "base_app.html" %}{% from "_macros.html" import disclaimer %}{% block title %}Behavioural Trends · MindScreen{% endblock %}{% block heading %}Behavioural Trends{% endblock %}{% block body %}
+{% if not has_any %}<div class="card"><h2>No data to chart yet</h2><p class="mute">Submit data in any category and its trends will appear here.</p><a class="btn" href="{{ url_for('data.hub') }}">Go to Data Collection</a></div>
+{% else %}<div class="card"><form id="trendform" class="row" method="get"><div><label>Category</label><select name="category"><option value="all">All categories</option>
+{% for cid,c in charts.items() %}<option value="{{ cid }}">{{ c[0] }}</option>{% endfor %}</select></div>
+<div><label>From</label><input type="date" name="from" value="{{ start }}"></div><div><label>To</label><input type="date" name="to" value="{{ end }}"></div><div style="align-self:flex-end"><button class="btn">Apply</button></div></form>
+<p class="small mute">Breaks in a line mean no data was submitted for that day. Missing values are never filled in. Patterns are shown for reflection, not as a diagnosis.</p></div>
+<div class="card"><div id="charts" data-trends-src="{{ url_for('analysis.api_trends') }}" data-form="trendform"><p class="mute">Loading…</p></div></div>
+<div class="card"><h2>Change from your own baseline</h2>{% if drift %}<p class="mute small">Your last {{ drift.recent_days }} days compared with your earlier routine. A signal is flagged when it moves clearly (≥ 2.5 standard errors and ≥ 10%) in the less-favourable direction. This is a monitoring heuristic, not a clinical test.</p>
+<p><span class="badge {{ drift.colour }}">{{ drift.level }}</span></p><div class="scroll"><table><tr><th>Signal</th><th>Baseline</th><th>Last 7 days</th><th>Change</th><th></th></tr>
+{% for r in drift.rows %}<tr><td>{{ r.label }}</td><td>{{ r.baseline }}</td><td>{{ r.recent }}</td><td class="{{ 'bad' if r.flag }}">{{ '%+d'|format(r.pct|int) }}%</td><td>{{ '⚠ flagged' if r.flag }}</td></tr>{% endfor %}</table></div>
+{% else %}<p class="mute">At least 14 days of screen-time and/or sleep data are needed to compare against your baseline.</p>{% endif %}</div>{% endif %}
+{% endblock %}

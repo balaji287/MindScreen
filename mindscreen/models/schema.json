@@ -1,0 +1,66 @@
+{
+  "best_model": "SVM (RBF)",
+  "model_files": {
+    "Logistic Regression": "logistic.joblib",
+    "Random Forest": "random.joblib",
+    "Gradient Boosting": "gradient.joblib",
+    "SVM (RBF)": "svm.joblib"
+  },
+  "reference": {
+    "Avg_Daily_Usage_Hours": 4.5,
+    "Sleep_Hours_Per_Night": 7.3
+  },
+  "categories": {
+    "Gender": [
+      "Female",
+      "Male"
+    ],
+    "Academic_Level": [
+      "Graduate",
+      "High School",
+      "Undergraduate"
+    ],
+    "Most_Used_Platform": [
+      "Facebook",
+      "Instagram",
+      "KakaoTalk",
+      "LINE",
+      "LinkedIn",
+      "Snapchat",
+      "TikTok",
+      "Twitter",
+      "VKontakte",
+      "WeChat",
+      "WhatsApp",
+      "YouTube"
+    ]
+  },
+  "ranges": {
+    "Age": [
+      18.0,
+      24.0
+    ],
+    "Avg_Daily_Usage_Hours": [
+      1.5,
+      8.5
+    ],
+    "Sleep_Hours_Per_Night": [
+      3.8,
+      9.6
+    ]
+  },
+  "defaults": {
+    "Age": 21.0,
+    "Avg_Daily_Usage_Hours": 4.8,
+    "Sleep_Hours_Per_Night": 6.9
+  },
+  "defaults_cat": {
+    "Gender": "Female",
+    "Academic_Level": "Undergraduate",
+    "Most_Used_Platform": "Instagram"
+  },
+  "n_rows": 705,
+  "at_risk_share": 0.2865248226950355,
+  "threshold": 5,
+  "test_size": 141
+}

@@ -1,0 +1,4 @@
+{% macro csrf() %}<input type="hidden" name="csrf" value="{{ csrf_token() }}">{% endmacro %}
+{% macro chip(s) %}<span class="chip st-{{ s|lower|replace(' ','-') }}">{{ s }}</span>{% endmacro %}
+{% macro flashes() %}{% with msgs = get_flashed_messages(with_categories=true) %}{% for c,m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}{% endmacro %}
+{% macro disclaimer() %}<p class="note small"><b>Screening aid, not a diagnosis.</b> MindScreen is an educational/research decision-support tool. It does not diagnose any condition and has not been clinically validated. Students can use the platform without being labelled or penalised.</p>{% endmacro %}

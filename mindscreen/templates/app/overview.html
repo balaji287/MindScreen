@@ -1,0 +1,12 @@
+{% extends "base_app.html" %}{% from "_macros.html" import chip, disclaimer %}{% block title %}Overview · MindScreen{% endblock %}{% block heading %}Overview{% endblock %}{% block body %}
+<div class="grid g3">
+ <div class="card stat"><b>{{ n_submitted }} / 5</b>data categories submitted</div>
+ <div class="card stat"><b>{{ completeness }}%</b>data completeness<div class="bar" style="margin-top:.5rem"><i style="width:{{ completeness }}%"></i></div></div>
+ <div class="card stat">{% if pred %}<b style="font-size:1.4rem">{{ pred.tier }} indicator</b>latest screening · {{ pred.ts[:10] }}<div class="small mute">data sufficiency: {{ pred.sufficiency }}</div>{% else %}<b style="font-size:1.2rem">No screening yet</b><span class="small mute">Run one on the ML Prediction page</span>{% endif %}</div></div>
+{{ disclaimer() }}
+<div class="card"><h2>Screen time and sleep over time</h2><div data-trends-src="{{ url_for('analysis.api_trends', category='overview') }}"><p class="mute">Loading…</p></div></div>
+<div class="grid g2"><div class="card"><h2>Category summary</h2><div class="scroll"><table><tr><th>Category</th><th>Status</th><th>Days</th><th>Last record</th></tr>
+{% for k,s in status.items() %}<tr><td><a href="{{ url_for('data.category', key=k) }}">{{ CATEGORIES[k].icon }} {{ CATEGORIES[k].label }}</a></td><td>{{ chip(s.status) }}</td><td>{{ s.days }}</td><td>{{ s.last or '–' }}</td></tr>{% endfor %}</table></div></div>
+<div class="card"><h2>Data quality &amp; missing-data notes</h2>{% if warnings %}<ul style="padding-left:1.1rem;margin:0">{% for w in warnings %}<li class="small">{{ w.text }}</li>{% endfor %}</ul>{% else %}<p class="mute">No data-quality issues found.</p>{% endif %}</div></div>
+<div class="card"><h2>Recent activity</h2>{% if recent %}<ul style="padding-left:1.1rem;margin:0">{% for r in recent %}<li class="small">{{ r.ts.replace('T',' ') }} UTC · {{ r.action.replace('_',' ') }}{% if r.target %} · {{ r.target }}{% endif %}</li>{% endfor %}</ul>{% else %}<p class="mute">Nothing yet. Start on the <a href="{{ url_for('data.hub') }}">Data Collection</a> page.</p>{% endif %}</div>
+{% endblock %}

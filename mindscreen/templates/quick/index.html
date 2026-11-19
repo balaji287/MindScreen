@@ -1,0 +1,13 @@
+{% extends "base_public.html" %}{% from "_macros.html" import csrf %}{% block title %}Quick analyser · MindScreen{% endblock %}{% block body %}
+<div class="container" style="padding-top:1.6rem"><div class="card"><h1>Quick analyser <span class="chip">no account · nothing stored</span></h1>
+<p class="mute">Upload a few weeks of daily activity data (CSV or JSON) for an instant look: risk now vs average, trend charts and a behaviour-change monitor. For saved data, the five-category dashboard and reports, <a href="{{ url_for('auth.register') }}">create an account</a>.</p></div>
+{% if error %}<div class="err">⚠️ {{ error }}</div><br>{% endif %}
+<form class="card" method="post" action="{{ url_for('quick.analyze') }}" enctype="multipart/form-data">{{ csrf() }}
+<div class="drop"><b>Choose your daily-activity file (.csv or .json)</b><br><input type="file" name="file" accept=".csv,.json"><div class="filename"></div>
+<p class="small mute" style="margin:.6rem 0 0">Columns: date, screen_hours, sleep_hours (+ optional social_media_hours, steps, active_minutes, social_interactions, late_night_screen_minutes, top_app). At least 7 days; 14+ for change detection · <a href="{{ url_for('static', filename='footprint_template.csv') }}" download>CSV template</a></p></div>
+<div class="grid g3"><div><label>Age</label><select name="Age">{% for a in range(17,27) %}<option {{ 'selected' if a==21 }}>{{ a }}</option>{% endfor %}</select></div>
+<div><label>Gender</label><select name="Gender">{% for o in genders %}<option>{{ o }}</option>{% endfor %}</select></div><div><label>Academic level</label><select name="Academic_Level">{% for o in levels %}<option>{{ o }}</option>{% endfor %}</select></div></div>
+<p><button class="btn">Analyse →</button></p></form>
+<div class="card"><h2>No file handy? Try a simulated student</h2><p class="mute small">These 30-day files are <b>simulated demo data</b>: not real people, never used for training.</p>
+<form method="post" action="{{ url_for('quick.analyze') }}">{{ csrf() }}<input type="hidden" name="Age" value="21"><input type="hidden" name="Gender" value="Female"><input type="hidden" name="Academic_Level" value="Undergraduate">
+<div class="grid g3">{% for k,(t,d) in demos.items() %}<button class="demo" name="demo" value="{{ k }}"><b>{{ t }}</b><span class="mute small">{{ d }}</span></button>{% endfor %}</div></form></div></div>{% endblock %}

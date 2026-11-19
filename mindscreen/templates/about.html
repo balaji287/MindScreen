@@ -1,0 +1,21 @@
+{% extends "base_public.html" %}{% block title %}About · MindScreen{% endblock %}{% block body %}
+<div class="container" style="padding-top:1.6rem"><div class="card"><h1>MindScreen: project summary</h1><p class="mute">Multimodal student wellbeing screening: five data categories, one unified pipeline, honest limits.</p></div>
+<div class="card"><h2>Research gap</h2><ul><li>Most student screening relies on <b>self-reported questionnaires</b>: subjective, open to social-desirability and cultural bias, and a one-time snapshot.</li>
+<li>Many ML prototypes use <b>small or synthetic data</b>, report accuracy only, and judge a student on a single average, hiding recent change.</li>
+<li>Few prototypes go beyond a score to something an institution or hospital can <b>act on</b> responsibly (consent, access control, audit, aggregate reporting).</li></ul></div>
+<div class="card"><h2>Problem statement</h2><p>Estimate a student's wellbeing risk indicator from <b>passively measurable and voluntarily shared data across five categories</b>, track change against the student's own baseline, and deliver the result in a privacy-preserving, role-controlled workflow, without presenting it as a diagnosis.</p></div>
+<div class="card"><h2>Objectives</h2><ol><li>Replace the single questionnaire with five separately uploaded data categories, validated and stored in one unified structure.</li>
+<li>Train and compare 4 models (Logistic Regression, Random Forest, Gradient Boosting, SVM) on a real public student dataset ({{ s.n_rows }} records) and report honest hold-out metrics.</li>
+<li>Run <b>one</b> unified prediction pipeline that states which categories it used, how sufficient the data is, and what it could not use.</li>
+<li>Explain each result with SHAP, and show trends with missing days left as gaps.</li>
+<li>Provide consent, deletion, role-based access, an audit log and k-anonymised researcher aggregates.</li></ol></div>
+<div class="card"><h2>Methodology</h2><ol><li><b>Training data</b>: public survey dataset; target = wellbeing score ≤ {{ s.threshold }}/10. Questionnaire-derived and self-reported columns are excluded.</li>
+<li><b>Model inputs</b>: average social-media hours, average sleep hours, top platform, age, gender, academic level + 3 engineered ratios.</li>
+<li><b>Models</b>: LR, RF, GB, calibrated SVM; GridSearchCV (5-fold, F1) on an 80% training split; 20% held-out evaluation; subgroup check.</li>
+<li><b>Platform pipeline</b>: validated uploads → unified per-student features → prediction + SHAP → stored with model version and timestamp.</li>
+<li><b>Change monitor</b>: last 7 days vs own baseline (≥ 2.5 standard errors and ≥ 10% worse), unvalidated heuristic.</li></ol></div>
+<div class="card"><h2>What is real and what is a placeholder</h2><ul><li><b>Real:</b> accounts, roles, consent, uploads, validation, storage, trends, reports, audit log, aggregate reporting, the trained model and SHAP.</li>
+<li><b>Limit:</b> the model can only use screen-time and sleep (plus profile). Behavioural, social and academic data are collected and shown but not scored, because the training data has no such columns.</li>
+<li><b>Demo:</b> demo accounts hold fictional records and are kept separate from real data.</li></ul></div>
+<div class="card"><h2>Future scope</h2><ul><li>Hospital / counselling tie-ups with consent-based referral; clinic-labelled outcomes to train and validate a true multi-category model.</li>
+<li>Companion app / connectors (Digital Wellbeing, Screen Time, Health apps) replacing manual upload; wearable and EEG features.</li><li>Sequence models on daily series; bias audit and clinical validation before any deployment.</li></ul><p class="small mute">See docs/FUTURE_SCOPE.md.</p></div></div>{% endblock %}

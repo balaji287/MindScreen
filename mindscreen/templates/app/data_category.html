@@ -1,0 +1,37 @@
+{% extends "base_app.html" %}{% from "_macros.html" import csrf, chip %}{% block title %}{{ spec.label }} · MindScreen{% endblock %}{% block heading %}{{ spec.icon }} {{ spec.short }}. {{ spec.label }} data{% endblock %}{% block body %}
+<div class="card"><div class="row"><h2 style="margin:0">Status</h2>{{ chip(st.status) }}<span class="small mute">{{ st.days }} day(s) stored{% if st.first %} · {{ st.first }} to {{ st.last }}{% endif %}</span></div>
+<p class="mute">{{ spec.desc }}</p></div>
+
+<div class="card"><h2>Upload a CSV</h2>
+<form method="post" action="{{ url_for('data.preview', key=key) }}" enctype="multipart/form-data">{{ csrf() }}
+<div class="drop"><b>Drag &amp; drop your CSV here</b> or choose a file<br><input type="file" name="file" accept=".csv,text/csv" required><div class="filename"></div>
+<p class="small mute" style="margin:.5rem 0 0">Max 2 MB · up to 2000 rows · UTF-8 CSV · dates as YYYY-MM-DD</p></div>
+<p class="row"><button class="btn">Validate &amp; preview →</button><a class="btn ghost" href="{{ url_for('data.template', key=key) }}">⬇ Download sample CSV template</a></p></form>
+<p class="small mute">Nothing is saved to your record until you confirm on the preview page.</p></div>
+
+<div class="card"><h2>What this category contains</h2><div class="scroll"><table><tr><th>Column</th><th>Meaning</th><th>Allowed values</th><th>Type</th></tr>
+{% for c in spec.columns %}<tr><td><code>{{ c.name }}</code>{% if c.required %} *{% endif %}</td><td>{{ c.label }}{% if c.help %}<div class="small mute">{{ c.help }}</div>{% endif %}</td>
+<td class="small">{% if c.kind == 'date' %}YYYY-MM-DD{% elif c.kind == 'cat' %}{{ c.choices|join(', ') }}{% elif c.kind == 'text' %}text{% else %}{{ c.lo }} – {{ c.hi }}{% endif %}</td>
+<td>{% if c.self_reported %}<span class="chip self">self-reported</span>{% elif c.kind in ('num','int') %}<span class="chip auto">measured</span>{% endif %}{% if c.consent %} <span class="chip consent">needs {{ c.consent }} consent</span>{% endif %}</td></tr>{% endfor %}</table></div>
+<p class="small mute">* required. Empty cells are allowed and stay missing.</p></div>
+
+<div class="card"><details><summary>Add one day manually (for testing or quick check-ins)</summary>
+<form method="post" action="{{ url_for('data.manual', key=key) }}">{{ csrf() }}<div class="grid g3">
+{% for c in spec.columns %}<div><label>{{ c.label }}{% if c.self_reported %} <span class="chip self">self</span>{% endif %}</label>
+{% set blocked = c.consent and c.consent not in consents %}
+{% if c.kind == 'date' %}<input type="date" name="date" required>
+{% elif c.kind == 'cat' %}<select name="{{ c.name }}"><option value="">—</option>{% for o in c.choices %}<option>{{ o }}</option>{% endfor %}</select>
+{% elif c.kind == 'text' %}<input type="text" name="{{ c.name }}" maxlength="30" {{ 'disabled' if c.name == 'period' }}>
+{% else %}<input type="number" name="{{ c.name }}" min="{{ c.lo }}" max="{{ c.hi }}" step="{{ 1 if c.kind == 'int' else 'any' }}" {{ 'disabled' if blocked }}>{% if blocked %}<div class="small mute">needs {{ c.consent }} consent</div>{% endif %}{% endif %}</div>{% endfor %}</div>
+<p><button class="btn">Save entry</button></p></form></details></div>
+
+<div class="card"><h2>Your submissions</h2>
+{% if uploads %}<div class="scroll"><table><tr><th>File</th><th>When (UTC)</th><th>Rows</th><th>Status</th><th></th></tr>
+{% for u in uploads %}<tr><td>{{ u.filename }}</td><td class="small">{{ u.created_at.replace('T',' ') }}</td><td>{{ u.rows_valid }} / {{ u.rows_total }}</td><td>{{ chip('Validated' if u.status == 'Validated' else u.status) }}</td>
+<td>{% if u.status == 'Validated' %}<form class="inline-form" method="post" action="{{ url_for('data.delete_upload', upload_id=u.id) }}" data-confirm="Delete this submission and its records?">{{ csrf() }}<button class="btn danger sm">Delete</button></form>
+{% elif u.status == 'Uploaded' %}<form class="inline-form" method="post" action="{{ url_for('data.cancel', upload_id=u.id) }}">{{ csrf() }}<button class="btn plain sm">Discard</button></form>{% endif %}</td></tr>
+{% if u.status == 'Needs correction' and u.errors_json %}<tr><td colspan="5"><details><summary>Why it needs correction</summary><ul class="small">{% for e in u.errors_json|fromjson %}<li>{% if e.row %}Row {{ e.row }}: {% endif %}{{ e.msg }}</li>{% endfor %}</ul></details></td></tr>{% endif %}{% endfor %}</table></div>
+{% else %}<p class="mute">No submissions yet. Upload a file or add a manual entry above.</p>{% endif %}
+{% if st.days %}<form method="post" action="{{ url_for('data.clear', key=key) }}" data-confirm="Delete ALL {{ spec.label }} data? This cannot be undone.">{{ csrf() }}<button class="btn danger sm">Delete all {{ spec.label|lower }} data</button></form>{% endif %}
+<p class="small mute">To replace data: upload a new file and tick “Replace existing submissions” on the preview page.</p></div>
+{% endblock %}
